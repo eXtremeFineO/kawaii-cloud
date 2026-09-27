@@ -1,5 +1,12 @@
 {
   "ok": true,
-  "items": [],
-  "updatedAt": 0
+  "items": [
+    {
+      "title": "тест",
+      "body": "тест",
+      "author": "skytao",
+      "createdAt": "2026-09-27 11:20"
+    }
+  ],
+  "updatedAt": 1790502975
 }
