@@ -1,6 +1,6 @@
-/* Override locally or via GitHub Pages: change API_BASE to your hosted API URL */
+/* GitHub Pages: API_BASE must be public HTTPS (not 127.0.0.1). */
 window.KAWAII_CONFIG = {
-  API_BASE: "http://127.0.0.1:8787",
+  API_BASE: "https://e7443dd6666ade.lhr.life",
   CLOUD_URL: "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud",
   VERSION: "0.3.32"
 };
