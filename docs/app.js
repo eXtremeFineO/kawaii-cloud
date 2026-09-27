@@ -76,16 +76,23 @@
   }
 
   async function completeDevice(session) {
-    if (!deviceCode) return;
+    if (!deviceCode) return false;
     try {
       await post("/auth/device/complete", {
         device_code: deviceCode,
         login: session.login,
         token: session.token,
       });
-      status($("loginStatus"), "Готово — вернись в Minecraft", true);
+      return true;
     } catch (err) {
-      status($("loginStatus"), err.message || "device complete failed", false);
+      const banner = $("deviceBanner");
+      if (banner) {
+        banner.hidden = false;
+        banner.textContent = err.message || "device complete failed";
+        banner.classList.remove("ok");
+        banner.classList.add("error");
+      }
+      return false;
     }
   }
 
@@ -113,22 +120,41 @@
       saveSession(session);
       setHwidUi(session.hwid);
       return session;
-    } catch {
+    } catch (err) {
+      // token invalid → force re-login
+      if (String(err.message || "").toLowerCase().includes("unauthorized") || String(err.message || "").includes("401")) {
+        clearSession();
+        throw err;
+      }
       setHwidUi(session.hwid || "");
       return session;
     }
   }
 
-  function showHome(session) {
+  function showHome(session, deviceMsg) {
     gate.classList.add("hidden");
     home.classList.remove("hidden");
     home.classList.remove("enter");
     void home.offsetWidth;
     home.classList.add("enter");
+    $("loginUser").value = "";
+    $("loginPass").value = "";
+    status($("loginStatus"), "");
     $("displayName").textContent = session.displayName || session.login;
     $("metaLine").textContent = `ID ${session.uid || "—"} · ${session.role || "Player"}`;
     $("profDisplay").value = session.displayName || session.login || "";
     setHwidUi(session.hwid || "");
+    const banner = $("deviceBanner");
+    if (banner) {
+      if (deviceMsg) {
+        banner.hidden = false;
+        banner.textContent = deviceMsg;
+        banner.classList.add("ok");
+      } else {
+        banner.hidden = true;
+        banner.textContent = "";
+      }
+    }
     const img = $("avatar");
     if (session.avatarUrl) {
       img.src = session.avatarUrl + (session.avatarUrl.includes("?") ? "&" : "?") + "t=" + Date.now();
@@ -144,17 +170,26 @@
     $("adminPanel").classList.toggle("hidden", !isDev);
     if (isDev) loadAccounts(session);
     refreshCloud();
-    refreshMe(session).then((s) => {
-      $("displayName").textContent = s.displayName || s.login;
-      $("metaLine").textContent = `ID ${s.uid || "—"} · ${s.role || "Player"}`;
-      const isDev2 = String(s.role || "").toUpperCase() === "DEVELOPER";
-      $("adminPanel").classList.toggle("hidden", !isDev2);
-    });
+    refreshMe(session)
+      .then((s) => {
+        $("displayName").textContent = s.displayName || s.login;
+        $("metaLine").textContent = `ID ${s.uid || "—"} · ${s.role || "Player"}`;
+        const isDev2 = String(s.role || "").toUpperCase() === "DEVELOPER";
+        $("adminPanel").classList.toggle("hidden", !isDev2);
+      })
+      .catch(() => {
+        showGate();
+      });
   }
 
   function showGate() {
     home.classList.add("hidden");
     gate.classList.remove("hidden");
+    const banner = $("deviceBanner");
+    if (banner) {
+      banner.hidden = true;
+      banner.textContent = "";
+    }
   }
 
   async function refreshCloud() {
@@ -225,9 +260,12 @@
         hwid: data.hwid || "",
       };
       saveSession(session);
-      await completeDevice(session);
-      status($("loginStatus"), reg ? "Аккаунт создан" : "Ок", true);
-      showHome(session);
+      let deviceMsg = "";
+      if (deviceCode) {
+        const ok = await completeDevice(session);
+        deviceMsg = ok ? "Minecraft подключён — можно вернуться в игру" : "";
+      }
+      showHome(session, deviceMsg);
     } catch (err) {
       status($("loginStatus"), err.message || "Ошибка", false);
     }
@@ -350,10 +388,36 @@
 
   applyMode();
 
-  const existing = loadSession();
-  if (existing && existing.token) {
-    showHome(existing);
-    if (deviceCode) completeDevice(existing);
+  (async () => {
+    const existing = loadSession();
+    if (!(existing && existing.token)) {
+      showGate();
+      return;
+    }
+    // Already logged in on site → open settings (hide login).
+    // If opened from Minecraft (?device=), auto-complete without asking password again.
+    try {
+      await refreshMe(existing);
+    } catch {
+      showGate();
+      return;
+    }
+    let deviceMsg = "";
+    if (deviceCode) {
+      const ok = await completeDevice(existing);
+      deviceMsg = ok
+        ? "Уже вошёл на сайте — Minecraft подключён автоматически"
+        : "Не удалось подтвердить вход Minecraft";
+      // Drop device from URL so refresh won't re-complete
+      try {
+        const u = new URL(location.href);
+        u.searchParams.delete("device");
+        history.replaceState({}, "", u.pathname + u.search + u.hash);
+      } catch {
+        /* ignore */
+      }
+    }
+    showHome(existing, deviceMsg);
     if (CLOUD && existing.login) {
       getJson(CLOUD + "/profiles.json")
         .then((root) => {
@@ -365,9 +429,9 @@
           existing.role = p.role || existing.role;
           existing.uid = p.uid || existing.uid;
           saveSession(existing);
-          showHome(existing);
+          showHome(existing, deviceMsg);
         })
         .catch(() => {});
     }
-  }
+  })();
 })();
