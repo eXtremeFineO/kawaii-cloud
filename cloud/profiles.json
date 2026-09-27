@@ -4,7 +4,7 @@
     "skytao": {
       "login": "skytao",
       "displayName": "skytao",
-      "avatarUrl": "https://api.telegram.org/file/bot8629317104:AAFsnnogUqLeeCSCsbpsKSKAlMNLk7VhhG4/photos/file_0.jpg",
+      "avatarUrl": "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud/avatars/skytao.jpg?t=1790510423",
       "role": "DEVELOPER",
       "uid": 940553
     },
@@ -37,5 +37,5 @@
       "uid": 879065
     }
   },
-  "updatedAt": 1790510400
+  "updatedAt": 1790510423
 }
