@@ -2,8 +2,14 @@
   "ok": true,
   "count": 1,
   "online": [
-    "test"
+    "demo",
+    "k|demo|5|3"
   ],
-  "cosmetics": {},
-  "updatedAt": 1790513400
+  "cosmetics": {
+    "demo": {
+      "wings": 5,
+      "hat": 3
+    }
+  },
+  "updatedAt": 1790513653
 }
