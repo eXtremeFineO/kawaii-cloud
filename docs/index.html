@@ -16,11 +16,12 @@
     <header class="brand">
       <span class="mark">K</span>
       <h1>Kawaii</h1>
-      <p class="tag">v0.3.32 · аккаунт синхронизирован с клиентом</p>
+      <p class="tag">v0.3.32 · синхрон с клиентом</p>
     </header>
 
     <section class="panel" id="gate">
-      <h2>Вход</h2>
+      <h2 id="gateTitle">Вход</h2>
+      <p class="sub" id="deviceHint" hidden></p>
       <form id="loginForm" autocomplete="on">
         <label>
           Логин
@@ -30,42 +31,62 @@
           Пароль
           <input id="loginPass" name="password" type="password" maxlength="128" required />
         </label>
-        <button type="submit" class="btn primary">Войти</button>
+        <button type="submit" class="btn primary" id="gateSubmit">Войти</button>
       </form>
       <p class="hint" id="loginStatus"></p>
+      <p class="switch">
+        <span id="switchText">Нету аккаунта?</span>
+        <button type="button" class="link" id="switchMode">Создать</button>
+      </p>
     </section>
 
     <section class="panel hidden" id="home">
       <div class="profile">
-        <img id="avatar" alt="" width="64" height="64" />
+        <img id="avatar" alt="" width="72" height="72" />
         <div>
           <p class="nick" id="displayName">—</p>
           <p class="meta" id="metaLine">—</p>
         </div>
       </div>
+
+      <form id="profileForm" class="stack">
+        <h3>Профиль</h3>
+        <label>
+          Ник
+          <input id="profDisplay" type="text" maxlength="48" />
+        </label>
+        <label>
+          URL аватарки
+          <input id="profAvatar" type="url" maxlength="500" placeholder="https://..." />
+        </label>
+        <button type="submit" class="btn primary">Сохранить</button>
+        <p class="hint" id="profStatus"></p>
+      </form>
+
       <div class="stats">
         <div><span>Онлайн</span><strong id="onlineCount">0</strong></div>
         <div><span>Новости</span><strong id="newsCount">0</strong></div>
       </div>
       <ul class="news" id="newsList"></ul>
-      <button type="button" class="btn ghost" id="logoutBtn">Выйти</button>
-    </section>
 
-    <section class="panel register" id="registerSection">
-      <h2>Регистрация</h2>
-      <p class="sub">Нет аккаунта — создай здесь. Тот же логин работает в клиенте и боте.</p>
-      <form id="registerForm" autocomplete="off">
-        <label>
-          Логин
-          <input id="regUser" type="text" maxlength="32" required />
-        </label>
-        <label>
-          Пароль
-          <input id="regPass" type="password" maxlength="128" required />
-        </label>
-        <button type="submit" class="btn">Зарегистрироваться</button>
-      </form>
-      <p class="hint" id="regStatus"></p>
+      <section class="admin hidden" id="adminPanel">
+        <h3>Админ-консоль</h3>
+        <p class="sub">DEVELOPER · аккаунты и роли онлайн</p>
+        <div class="admin-row">
+          <input id="adminLoginTarget" type="text" placeholder="логин" maxlength="32" />
+          <select id="adminRole">
+            <option>Player</option>
+            <option>Tester</option>
+            <option>Admin</option>
+            <option>DEVELOPER</option>
+          </select>
+          <button type="button" class="btn" id="adminSetRole">Роль</button>
+        </div>
+        <p class="hint" id="adminStatus"></p>
+        <ul class="accounts" id="accountsList"></ul>
+      </section>
+
+      <button type="button" class="btn ghost" id="logoutBtn">Выйти</button>
     </section>
 
     <footer>
