@@ -1,10 +1,9 @@
 {
   "ok": true,
-  "count": 3,
+  "count": 2,
   "online": [
     "mattuyc19",
     "skytao",
-    "test",
     "k|mattuyc19|62|-1",
     "k|skytao|62|-1"
   ],
@@ -18,5 +17,5 @@
       "hat": -1
     }
   },
-  "updatedAt": 1790519458
+  "updatedAt": 1790519466
 }
