@@ -1,8 +1,6 @@
 {
   "ok": true,
-  "count": 1,
-  "online": [
-    "test_user"
-  ],
-  "updatedAt": 1790502771
+  "count": 0,
+  "online": [],
+  "updatedAt": 1790502818
 }
