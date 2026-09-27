@@ -1,0 +1,34 @@
+{
+  "ok": true,
+  "profiles": {
+    "skytao": {
+      "login": "skytao",
+      "displayName": "skytao",
+      "avatarUrl": "https://api.telegram.org/file/bot8629317104:AAFsnnogUqLeeCSCsbpsKSKAlMNLk7VhhG4/photos/file_0.jpg",
+      "role": "DEVELOPER",
+      "uid": 940553
+    },
+    "user46083": {
+      "login": "user46083",
+      "displayName": "user46083",
+      "avatarUrl": "",
+      "role": "Player",
+      "uid": 773807
+    },
+    "hwidtest7700": {
+      "login": "hwidtest7700",
+      "displayName": "hwidtest7700",
+      "avatarUrl": "",
+      "role": "Player",
+      "uid": 889190
+    },
+    "sky": {
+      "login": "sky",
+      "displayName": "sky",
+      "avatarUrl": "",
+      "role": "Player",
+      "uid": 147770
+    }
+  },
+  "updatedAt": 1790505646
+}
