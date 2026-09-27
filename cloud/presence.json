@@ -1,10 +1,22 @@
 {
   "ok": true,
-  "count": 2,
+  "count": 3,
   "online": [
     "mattuyc19",
-    "skyt23"
+    "skyt23",
+    "skytao1",
+    "k|skyt23|63|-1",
+    "k|skytao1|63|-1"
   ],
-  "cosmetics": {},
-  "updatedAt": 1790513840
+  "cosmetics": {
+    "skyt23": {
+      "wings": 63,
+      "hat": -1
+    },
+    "skytao1": {
+      "wings": 63,
+      "hat": -1
+    }
+  },
+  "updatedAt": 1790513849
 }
