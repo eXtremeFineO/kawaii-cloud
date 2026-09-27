@@ -2,11 +2,17 @@
   "ok": true,
   "items": [
     {
+      "title": "sync-test",
+      "body": "from api check",
+      "author": "system",
+      "createdAt": "2026-09-27 12:56"
+    },
+    {
       "title": "тест",
       "body": "тест",
       "author": "skytao",
       "createdAt": "2026-09-27 11:20"
     }
   ],
-  "updatedAt": 1790502975
+  "updatedAt": 1790503004
 }
