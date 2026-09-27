@@ -2,7 +2,14 @@
   "ok": true,
   "count": 1,
   "online": [
+    "skyt23",
     "k|skyt23|5|3"
   ],
-  "updatedAt": 1790512997
+  "cosmetics": {
+    "skyt23": {
+      "wings": 5,
+      "hat": 3
+    }
+  },
+  "updatedAt": 1790513040
 }
