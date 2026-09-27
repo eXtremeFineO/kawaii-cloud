@@ -49,7 +49,14 @@
       "avatarUrl": "",
       "role": "Player",
       "uid": 624849
+    },
+    "marshal_rf": {
+      "login": "Marshal_RF",
+      "displayName": "Marshal_RF",
+      "avatarUrl": "",
+      "role": "Player",
+      "uid": 708037
     }
   },
-  "updatedAt": 1790517827
+  "updatedAt": 1790520628
 }
