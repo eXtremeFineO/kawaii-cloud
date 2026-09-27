@@ -1,10 +1,62 @@
 (() => {
   const cfg = window.KAWAII_CONFIG || {};
-  const API = (cfg.API_BASE || "http://127.0.0.1:8787").replace(/\/$/, "");
+  const params = new URLSearchParams(location.search);
+  const urlApi = (params.get("api") || "").trim();
+  const storedApi = (() => {
+    try {
+      return (localStorage.getItem("kawaii.web.api") || "").trim();
+    } catch {
+      return "";
+    }
+  })();
+  function isPublicApi(u) {
+    const s = String(u || "").trim();
+    if (!s) return false;
+    if (s.includes("127.0.0.1") || s.includes("localhost")) return false;
+    return /^https:\/\//i.test(s);
+  }
+  let API = (urlApi || (isPublicApi(storedApi) ? storedApi : "") || cfg.API_BASE || "http://127.0.0.1:8787").replace(
+    /\/$/,
+    ""
+  );
   const CLOUD = (cfg.CLOUD_URL || "").replace(/\/$/, "");
   const KEY = "kawaii.web.session";
 
-  const params = new URLSearchParams(location.search);
+  async function resolveApiBase() {
+    if (urlApi) {
+      API = urlApi.replace(/\/$/, "");
+      if (isPublicApi(API)) {
+        try {
+          localStorage.setItem("kawaii.web.api", API);
+        } catch {
+          /* ignore */
+        }
+      }
+      return API;
+    }
+    if (CLOUD) {
+      try {
+        const remote = await getJson(CLOUD + "/web-config.json");
+        const next = String((remote && remote.API_BASE) || "").trim().replace(/\/$/, "");
+        if (isPublicApi(next)) {
+          API = next;
+          try {
+            localStorage.setItem("kawaii.web.api", next);
+          } catch {
+            /* ignore */
+          }
+          return API;
+        }
+      } catch {
+        /* keep config.js / stored */
+      }
+    }
+    if (isPublicApi(cfg.API_BASE)) {
+      API = String(cfg.API_BASE).replace(/\/$/, "");
+    }
+    return API;
+  }
+
   const deviceCode = params.get("device") || "";
   let mode = (params.get("mode") || "login").toLowerCase();
   if (mode !== "register") mode = "login";
@@ -17,6 +69,28 @@
     el.textContent = text || "";
     el.classList.toggle("error", ok === false);
     el.classList.toggle("ok", ok === true);
+  }
+
+  function friendlyFetchError(err) {
+    const raw = String((err && err.message) || err || "");
+    const low = raw.toLowerCase();
+    if (
+      low.includes("failed to fetch") ||
+      low.includes("networkerror") ||
+      low.includes("load failed") ||
+      low.includes("network request failed")
+    ) {
+      const httpsPage = location.protocol === "https:";
+      const httpApi = API.startsWith("http://");
+      if (httpsPage && httpApi) {
+        return "API недоступен с HTTPS-сайта (нужен публичный HTTPS API).";
+      }
+      if (API.includes("127.0.0.1") || API.includes("localhost")) {
+        return "API только на этом ПК. Нужен публичный адрес API.";
+      }
+      return "Нет связи с API. Проверь, что сервер запущен.";
+    }
+    return raw || "Ошибка сети";
   }
 
   function saveSession(data) {
@@ -36,11 +110,16 @@
   }
 
   async function post(path, body) {
-    const res = await fetch(API + path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    let res;
+    try {
+      res = await fetch(API + path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    } catch (err) {
+      throw new Error(friendlyFetchError(err));
+    }
     let json = {};
     try {
       json = await res.json();
@@ -55,7 +134,12 @@
   }
 
   async function getJson(url) {
-    const res = await fetch(url, { cache: "no-store" });
+    let res;
+    try {
+      res = await fetch(url, { cache: "no-store" });
+    } catch (err) {
+      throw new Error(friendlyFetchError(err));
+    }
     if (!res.ok) throw new Error("HTTP " + res.status);
     return res.json();
   }
@@ -76,16 +160,23 @@
   }
 
   async function completeDevice(session) {
-    if (!deviceCode) return;
+    if (!deviceCode) return false;
     try {
       await post("/auth/device/complete", {
         device_code: deviceCode,
         login: session.login,
         token: session.token,
       });
-      status($("loginStatus"), "Готово — вернись в Minecraft", true);
+      return true;
     } catch (err) {
-      status($("loginStatus"), err.message || "device complete failed", false);
+      const banner = $("deviceBanner");
+      if (banner) {
+        banner.hidden = false;
+        banner.textContent = err.message || "device complete failed";
+        banner.classList.remove("ok");
+        banner.classList.add("error");
+      }
+      return false;
     }
   }
 
@@ -113,22 +204,41 @@
       saveSession(session);
       setHwidUi(session.hwid);
       return session;
-    } catch {
+    } catch (err) {
+      // token invalid → force re-login
+      if (String(err.message || "").toLowerCase().includes("unauthorized") || String(err.message || "").includes("401")) {
+        clearSession();
+        throw err;
+      }
       setHwidUi(session.hwid || "");
       return session;
     }
   }
 
-  function showHome(session) {
+  function showHome(session, deviceMsg) {
     gate.classList.add("hidden");
     home.classList.remove("hidden");
     home.classList.remove("enter");
     void home.offsetWidth;
     home.classList.add("enter");
+    $("loginUser").value = "";
+    $("loginPass").value = "";
+    status($("loginStatus"), "");
     $("displayName").textContent = session.displayName || session.login;
     $("metaLine").textContent = `ID ${session.uid || "—"} · ${session.role || "Player"}`;
     $("profDisplay").value = session.displayName || session.login || "";
     setHwidUi(session.hwid || "");
+    const banner = $("deviceBanner");
+    if (banner) {
+      if (deviceMsg) {
+        banner.hidden = false;
+        banner.textContent = deviceMsg;
+        banner.classList.add("ok");
+      } else {
+        banner.hidden = true;
+        banner.textContent = "";
+      }
+    }
     const img = $("avatar");
     if (session.avatarUrl) {
       img.src = session.avatarUrl + (session.avatarUrl.includes("?") ? "&" : "?") + "t=" + Date.now();
@@ -144,17 +254,26 @@
     $("adminPanel").classList.toggle("hidden", !isDev);
     if (isDev) loadAccounts(session);
     refreshCloud();
-    refreshMe(session).then((s) => {
-      $("displayName").textContent = s.displayName || s.login;
-      $("metaLine").textContent = `ID ${s.uid || "—"} · ${s.role || "Player"}`;
-      const isDev2 = String(s.role || "").toUpperCase() === "DEVELOPER";
-      $("adminPanel").classList.toggle("hidden", !isDev2);
-    });
+    refreshMe(session)
+      .then((s) => {
+        $("displayName").textContent = s.displayName || s.login;
+        $("metaLine").textContent = `ID ${s.uid || "—"} · ${s.role || "Player"}`;
+        const isDev2 = String(s.role || "").toUpperCase() === "DEVELOPER";
+        $("adminPanel").classList.toggle("hidden", !isDev2);
+      })
+      .catch(() => {
+        showGate();
+      });
   }
 
   function showGate() {
     home.classList.add("hidden");
     gate.classList.remove("hidden");
+    const banner = $("deviceBanner");
+    if (banner) {
+      banner.hidden = true;
+      banner.textContent = "";
+    }
   }
 
   async function refreshCloud() {
@@ -225,9 +344,12 @@
         hwid: data.hwid || "",
       };
       saveSession(session);
-      await completeDevice(session);
-      status($("loginStatus"), reg ? "Аккаунт создан" : "Ок", true);
-      showHome(session);
+      let deviceMsg = "";
+      if (deviceCode) {
+        const ok = await completeDevice(session);
+        deviceMsg = ok ? "Minecraft подключён — можно вернуться в игру" : "";
+      }
+      showHome(session, deviceMsg);
     } catch (err) {
       status($("loginStatus"), err.message || "Ошибка", false);
     }
@@ -247,7 +369,12 @@
         fd.append("login", session.login);
         fd.append("token", session.token);
         fd.append("file", file);
-        const res = await fetch(API + "/auth/avatar/upload", { method: "POST", body: fd });
+        let res;
+        try {
+          res = await fetch(API + "/auth/avatar/upload", { method: "POST", body: fd });
+        } catch (err) {
+          throw new Error(friendlyFetchError(err));
+        }
         let json = {};
         try {
           json = await res.json();
@@ -350,10 +477,35 @@
 
   applyMode();
 
-  const existing = loadSession();
-  if (existing && existing.token) {
-    showHome(existing);
-    if (deviceCode) completeDevice(existing);
+  (async () => {
+    await resolveApiBase();
+    const existing = loadSession();
+    if (!(existing && existing.token)) {
+      showGate();
+      return;
+    }
+    try {
+      await refreshMe(existing);
+    } catch {
+      showGate();
+      return;
+    }
+    let deviceMsg = "";
+    if (deviceCode) {
+      const ok = await completeDevice(existing);
+      deviceMsg = ok
+        ? "Уже вошёл на сайте — Minecraft подключён автоматически"
+        : "Не удалось подтвердить вход Minecraft";
+      // Drop device from URL so refresh won't re-complete
+      try {
+        const u = new URL(location.href);
+        u.searchParams.delete("device");
+        history.replaceState({}, "", u.pathname + u.search + u.hash);
+      } catch {
+        /* ignore */
+      }
+    }
+    showHome(existing, deviceMsg);
     if (CLOUD && existing.login) {
       getJson(CLOUD + "/profiles.json")
         .then((root) => {
@@ -365,9 +517,9 @@
           existing.role = p.role || existing.role;
           existing.uid = p.uid || existing.uid;
           saveSession(existing);
-          showHome(existing);
+          showHome(existing, deviceMsg);
         })
         .catch(() => {});
     }
-  }
+  })();
 })();
