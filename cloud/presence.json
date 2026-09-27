@@ -6,18 +6,18 @@
     "skyt23",
     "skytao",
     "skytao1",
-    "k|skyt23|63|-1",
-    "k|skytao1|63|-1",
+    "k|skyt23|86|-1",
+    "k|skytao1|86|-1",
     "k|mattuyc19|62|-1",
     "k|skytao|62|-1"
   ],
   "cosmetics": {
     "skyt23": {
-      "wings": 63,
+      "wings": 86,
       "hat": -1
     },
     "skytao1": {
-      "wings": 63,
+      "wings": 86,
       "hat": -1
     },
     "mattuyc19": {
@@ -29,5 +29,5 @@
       "hat": -1
     }
   },
-  "updatedAt": 1790513886
+  "updatedAt": 1790513894
 }
