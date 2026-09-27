@@ -1,10 +1,62 @@
 (() => {
   const cfg = window.KAWAII_CONFIG || {};
-  const API = (cfg.API_BASE || "http://127.0.0.1:8787").replace(/\/$/, "");
+  const params = new URLSearchParams(location.search);
+  const urlApi = (params.get("api") || "").trim();
+  const storedApi = (() => {
+    try {
+      return (localStorage.getItem("kawaii.web.api") || "").trim();
+    } catch {
+      return "";
+    }
+  })();
+  function isPublicApi(u) {
+    const s = String(u || "").trim();
+    if (!s) return false;
+    if (s.includes("127.0.0.1") || s.includes("localhost")) return false;
+    return /^https:\/\//i.test(s);
+  }
+  let API = (urlApi || (isPublicApi(storedApi) ? storedApi : "") || cfg.API_BASE || "http://127.0.0.1:8787").replace(
+    /\/$/,
+    ""
+  );
   const CLOUD = (cfg.CLOUD_URL || "").replace(/\/$/, "");
   const KEY = "kawaii.web.session";
 
-  const params = new URLSearchParams(location.search);
+  async function resolveApiBase() {
+    if (urlApi) {
+      API = urlApi.replace(/\/$/, "");
+      if (isPublicApi(API)) {
+        try {
+          localStorage.setItem("kawaii.web.api", API);
+        } catch {
+          /* ignore */
+        }
+      }
+      return API;
+    }
+    if (CLOUD) {
+      try {
+        const remote = await getJson(CLOUD + "/web-config.json");
+        const next = String((remote && remote.API_BASE) || "").trim().replace(/\/$/, "");
+        if (isPublicApi(next)) {
+          API = next;
+          try {
+            localStorage.setItem("kawaii.web.api", next);
+          } catch {
+            /* ignore */
+          }
+          return API;
+        }
+      } catch {
+        /* keep config.js / stored */
+      }
+    }
+    if (isPublicApi(cfg.API_BASE)) {
+      API = String(cfg.API_BASE).replace(/\/$/, "");
+    }
+    return API;
+  }
+
   const deviceCode = params.get("device") || "";
   let mode = (params.get("mode") || "login").toLowerCase();
   if (mode !== "register") mode = "login";
@@ -17,6 +69,28 @@
     el.textContent = text || "";
     el.classList.toggle("error", ok === false);
     el.classList.toggle("ok", ok === true);
+  }
+
+  function friendlyFetchError(err) {
+    const raw = String((err && err.message) || err || "");
+    const low = raw.toLowerCase();
+    if (
+      low.includes("failed to fetch") ||
+      low.includes("networkerror") ||
+      low.includes("load failed") ||
+      low.includes("network request failed")
+    ) {
+      const httpsPage = location.protocol === "https:";
+      const httpApi = API.startsWith("http://");
+      if (httpsPage && httpApi) {
+        return "API недоступен с HTTPS-сайта (нужен публичный HTTPS API).";
+      }
+      if (API.includes("127.0.0.1") || API.includes("localhost")) {
+        return "API только на этом ПК. Нужен публичный адрес API.";
+      }
+      return "Нет связи с API. Проверь, что сервер запущен.";
+    }
+    return raw || "Ошибка сети";
   }
 
   function saveSession(data) {
@@ -36,11 +110,16 @@
   }
 
   async function post(path, body) {
-    const res = await fetch(API + path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    let res;
+    try {
+      res = await fetch(API + path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    } catch (err) {
+      throw new Error(friendlyFetchError(err));
+    }
     let json = {};
     try {
       json = await res.json();
@@ -55,7 +134,12 @@
   }
 
   async function getJson(url) {
-    const res = await fetch(url, { cache: "no-store" });
+    let res;
+    try {
+      res = await fetch(url, { cache: "no-store" });
+    } catch (err) {
+      throw new Error(friendlyFetchError(err));
+    }
     if (!res.ok) throw new Error("HTTP " + res.status);
     return res.json();
   }
@@ -285,7 +369,12 @@
         fd.append("login", session.login);
         fd.append("token", session.token);
         fd.append("file", file);
-        const res = await fetch(API + "/auth/avatar/upload", { method: "POST", body: fd });
+        let res;
+        try {
+          res = await fetch(API + "/auth/avatar/upload", { method: "POST", body: fd });
+        } catch (err) {
+          throw new Error(friendlyFetchError(err));
+        }
         let json = {};
         try {
           json = await res.json();
@@ -389,13 +478,12 @@
   applyMode();
 
   (async () => {
+    await resolveApiBase();
     const existing = loadSession();
     if (!(existing && existing.token)) {
       showGate();
       return;
     }
-    // Already logged in on site → open settings (hide login).
-    // If opened from Minecraft (?device=), auto-complete without asking password again.
     try {
       await refreshMe(existing);
     } catch {
