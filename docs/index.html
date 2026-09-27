@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kawaii</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+
+  <main class="shell">
+    <header class="brand">
+      <span class="mark">K</span>
+      <h1>Kawaii</h1>
+      <p class="tag">v0.3.32 · аккаунт синхронизирован с клиентом</p>
+    </header>
+
+    <section class="panel" id="gate">
+      <h2>Вход</h2>
+      <form id="loginForm" autocomplete="on">
+        <label>
+          Логин
+          <input id="loginUser" name="username" type="text" maxlength="32" required />
+        </label>
+        <label>
+          Пароль
+          <input id="loginPass" name="password" type="password" maxlength="128" required />
+        </label>
+        <button type="submit" class="btn primary">Войти</button>
+      </form>
+      <p class="hint" id="loginStatus"></p>
+    </section>
+
+    <section class="panel hidden" id="home">
+      <div class="profile">
+        <img id="avatar" alt="" width="64" height="64" />
+        <div>
+          <p class="nick" id="displayName">—</p>
+          <p class="meta" id="metaLine">—</p>
+        </div>
+      </div>
+      <div class="stats">
+        <div><span>Онлайн</span><strong id="onlineCount">0</strong></div>
+        <div><span>Новости</span><strong id="newsCount">0</strong></div>
+      </div>
+      <ul class="news" id="newsList"></ul>
+      <button type="button" class="btn ghost" id="logoutBtn">Выйти</button>
+    </section>
+
+    <section class="panel register" id="registerSection">
+      <h2>Регистрация</h2>
+      <p class="sub">Нет аккаунта — создай здесь. Тот же логин работает в клиенте и боте.</p>
+      <form id="registerForm" autocomplete="off">
+        <label>
+          Логин
+          <input id="regUser" type="text" maxlength="32" required />
+        </label>
+        <label>
+          Пароль
+          <input id="regPass" type="password" maxlength="128" required />
+        </label>
+        <button type="submit" class="btn">Зарегистрироваться</button>
+      </form>
+      <p class="hint" id="regStatus"></p>
+    </section>
+
+    <footer>
+      <a href="https://github.com/eXtremeFineO/kawaii-cloud" target="_blank" rel="noreferrer">GitHub sync</a>
+    </footer>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
