@@ -55,14 +55,22 @@
           Ник
           <input id="profDisplay" type="text" maxlength="48" />
         </label>
-        <label>
-          Аватарка (файл)
-          <input id="profAvatarFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
-        </label>
-        <p class="sub" id="avatarLinkHint">После сохранения сайт сам сделает ссылку для Minecraft.</p>
+        <div class="file-field">
+          <span class="file-label">Аватарка</span>
+          <input id="profAvatarFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+          <button type="button" class="file-btn" id="profAvatarPick">
+            <span class="file-icon" aria-hidden="true"></span>
+            <span class="file-text" id="profAvatarName">Выберите файл</span>
+          </button>
+        </div>
+        <div class="hwid-box">
+          <span class="file-label">HWID</span>
+          <code id="hwidValue" class="hwid-value">не привязан</code>
+          <button type="button" class="btn ghost hwid-reset" id="hwidReset">Сбросить HWID</button>
+          <p class="hint" id="hwidStatus"></p>
+        </div>
         <button type="submit" class="btn primary">Сохранить</button>
         <p class="hint" id="profStatus"></p>
-        <p class="hint ok" id="avatarLink" hidden></p>
       </form>
 
       <div class="stats">
@@ -91,9 +99,6 @@
       <button type="button" class="btn ghost" id="logoutBtn">Выйти</button>
     </section>
 
-    <footer>
-      <a href="https://github.com/eXtremeFineO/kawaii-cloud" target="_blank" rel="noreferrer">GitHub sync</a>
-    </footer>
   </main>
 
   <script src="config.js"></script>
