@@ -327,6 +327,7 @@
 
   $("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+    await resolveApiBase();
     const login = $("loginUser").value.trim();
     const password = $("loginPass").value;
     const reg = mode === "register";
