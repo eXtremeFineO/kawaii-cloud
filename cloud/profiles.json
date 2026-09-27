@@ -53,10 +53,10 @@
     "marshal_rf": {
       "login": "Marshal_RF",
       "displayName": "Marshal_RF",
-      "avatarUrl": "",
+      "avatarUrl": "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud/avatars/marshal_rf.jpg?t=1790520693",
       "role": "Player",
       "uid": 708037
     }
   },
-  "updatedAt": 1790520677
+  "updatedAt": 1790520693
 }
