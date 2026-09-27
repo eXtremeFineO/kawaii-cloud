@@ -95,7 +95,6 @@
     $("displayName").textContent = session.displayName || session.login;
     $("metaLine").textContent = `ID ${session.uid || "—"} · ${session.role || "Player"}`;
     $("profDisplay").value = session.displayName || session.login || "";
-    $("profAvatar").value = session.avatarUrl || "";
     const img = $("avatar");
     if (session.avatarUrl) {
       img.src = session.avatarUrl + (session.avatarUrl.includes("?") ? "&" : "?") + "t=" + Date.now();
@@ -199,17 +198,39 @@
     if (!session) return;
     status($("profStatus"), "Сохранение…");
     try {
+      const displayName = $("profDisplay").value.trim();
+      const fileInput = $("profAvatarFile");
+      const file = fileInput && fileInput.files && fileInput.files[0];
+      if (file) {
+        const fd = new FormData();
+        fd.append("login", session.login);
+        fd.append("token", session.token);
+        fd.append("file", file);
+        const res = await fetch(API + "/auth/avatar/upload", { method: "POST", body: fd });
+        let json = {};
+        try {
+          json = await res.json();
+        } catch {
+          /* empty */
+        }
+        if (!res.ok) {
+          throw new Error(json.detail || json.message || ("HTTP " + res.status));
+        }
+        session.avatarUrl = json.avatarUrl || session.avatarUrl;
+        session.role = json.role || session.role;
+      }
       const data = await post("/auth/profile", {
         login: session.login,
         token: session.token,
-        displayName: $("profDisplay").value.trim(),
-        avatarUrl: $("profAvatar").value.trim(),
+        displayName,
+        avatarUrl: session.avatarUrl || "",
       });
-      session.displayName = data.displayName || session.displayName;
-      session.avatarUrl = data.avatarUrl || "";
+      session.displayName = data.displayName || displayName || session.displayName;
+      session.avatarUrl = data.avatarUrl || session.avatarUrl || "";
       session.role = data.role || session.role;
       session.uid = data.uid || session.uid;
       saveSession(session);
+      if (fileInput) fileInput.value = "";
       status($("profStatus"), "Сохранено — в клиенте обновится через пару секунд", true);
       showHome(session);
     } catch (err) {
