@@ -2,14 +2,8 @@
   "ok": true,
   "count": 1,
   "online": [
-    "demo",
-    "k|demo|5|3"
+    "skytao"
   ],
-  "cosmetics": {
-    "demo": {
-      "wings": 5,
-      "hat": 3
-    }
-  },
-  "updatedAt": 1790513653
+  "cosmetics": {},
+  "updatedAt": 1790513754
 }
