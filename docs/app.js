@@ -232,6 +232,15 @@
       saveSession(session);
       if (fileInput) fileInput.value = "";
       status($("profStatus"), "Сохранено — в клиенте обновится через пару секунд", true);
+      const linkEl = $("avatarLink");
+      if (linkEl) {
+        if (session.avatarUrl) {
+          linkEl.hidden = false;
+          linkEl.textContent = "Ссылка для майна: " + session.avatarUrl;
+        } else {
+          linkEl.hidden = true;
+        }
+      }
       showHome(session);
     } catch (err) {
       status($("profStatus"), err.message || "Ошибка", false);
