@@ -1,107 +1,373 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kawaii</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <div class="bg" aria-hidden="true"></div>
+(() => {
+  const cfg = window.KAWAII_CONFIG || {};
+  const API = (cfg.API_BASE || "http://127.0.0.1:8787").replace(/\/$/, "");
+  const CLOUD = (cfg.CLOUD_URL || "").replace(/\/$/, "");
+  const KEY = "kawaii.web.session";
 
-  <main class="shell">
-    <header class="brand">
-      <span class="mark">K</span>
-      <h1>Kawaii</h1>
-      <p class="tag">v0.3.32 · синхрон с клиентом</p>
-    </header>
+  const params = new URLSearchParams(location.search);
+  const deviceCode = params.get("device") || "";
+  let mode = (params.get("mode") || "login").toLowerCase();
+  if (mode !== "register") mode = "login";
 
-    <section class="panel" id="gate">
-      <h2 id="gateTitle">Вход</h2>
-      <p class="sub" id="deviceHint" hidden></p>
-      <form id="loginForm" autocomplete="on">
-        <label>
-          Логин
-          <input id="loginUser" name="username" type="text" maxlength="32" required />
-        </label>
-        <label>
-          Пароль
-          <input id="loginPass" name="password" type="password" maxlength="128" required />
-        </label>
-        <button type="submit" class="btn primary" id="gateSubmit">Войти</button>
-      </form>
-      <p class="hint" id="loginStatus"></p>
-      <p class="switch">
-        <span id="switchText">Нету аккаунта?</span>
-        <button type="button" class="link" id="switchMode">Создать</button>
-      </p>
-    </section>
+  const $ = (id) => document.getElementById(id);
+  const gate = $("gate");
+  const home = $("home");
 
-    <section class="panel hidden" id="home">
-      <div class="profile">
-        <img id="avatar" alt="" width="72" height="72" />
-        <div>
-          <p class="nick" id="displayName">—</p>
-          <p class="meta" id="metaLine">—</p>
-        </div>
-      </div>
+  function status(el, text, ok) {
+    el.textContent = text || "";
+    el.classList.toggle("error", ok === false);
+    el.classList.toggle("ok", ok === true);
+  }
 
-      <form id="profileForm" class="stack">
-        <h3>Профиль</h3>
-        <label>
-          Ник
-          <input id="profDisplay" type="text" maxlength="48" />
-        </label>
-        <div class="file-field">
-          <span class="file-label">Аватарка</span>
-          <input id="profAvatarFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
-          <button type="button" class="file-btn" id="profAvatarPick">
-            <span class="file-icon" aria-hidden="true"></span>
-            <span class="file-text" id="profAvatarName">Выберите файл</span>
-          </button>
-        </div>
-        <div class="hwid-box">
-          <span class="file-label">HWID</span>
-          <code id="hwidValue" class="hwid-value">не привязан</code>
-          <button type="button" class="btn ghost hwid-reset" id="hwidReset">Сбросить HWID</button>
-          <p class="hint" id="hwidStatus"></p>
-        </div>
-        <button type="submit" class="btn primary">Сохранить</button>
-        <p class="hint" id="profStatus"></p>
-      </form>
+  function saveSession(data) {
+    localStorage.setItem(KEY, JSON.stringify(data));
+  }
 
-      <div class="stats">
-        <div><span>Онлайн</span><strong id="onlineCount">0</strong></div>
-        <div><span>Новости</span><strong id="newsCount">0</strong></div>
-      </div>
-      <ul class="news" id="newsList"></ul>
+  function loadSession() {
+    try {
+      return JSON.parse(localStorage.getItem(KEY) || "null");
+    } catch {
+      return null;
+    }
+  }
 
-      <section class="admin hidden" id="adminPanel">
-        <h3>Админ-консоль</h3>
-        <p class="sub">DEVELOPER · аккаунты и роли онлайн</p>
-        <div class="admin-row">
-          <input id="adminLoginTarget" type="text" placeholder="логин" maxlength="32" />
-          <select id="adminRole">
-            <option>Player</option>
-            <option>Tester</option>
-            <option>Admin</option>
-            <option>DEVELOPER</option>
-          </select>
-          <button type="button" class="btn" id="adminSetRole">Роль</button>
-        </div>
-        <p class="hint" id="adminStatus"></p>
-        <ul class="accounts" id="accountsList"></ul>
-      </section>
+  function clearSession() {
+    localStorage.removeItem(KEY);
+  }
 
-      <button type="button" class="btn ghost" id="logoutBtn">Выйти</button>
-    </section>
+  async function post(path, body) {
+    const res = await fetch(API + path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    let json = {};
+    try {
+      json = await res.json();
+    } catch {
+      /* empty */
+    }
+    if (!res.ok) {
+      const msg = json.detail || json.message || ("HTTP " + res.status);
+      throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+    }
+    return json;
+  }
 
-  </main>
+  async function getJson(url) {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  }
 
-  <script src="config.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+  function applyMode() {
+    const reg = mode === "register";
+    $("gateTitle").textContent = reg ? "Регистрация" : "Вход";
+    $("gateSubmit").textContent = reg ? "Создать аккаунт" : "Войти";
+    $("switchText").textContent = reg ? "Уже есть аккаунт?" : "Нету аккаунта?";
+    $("switchMode").textContent = reg ? "Войти" : "Создать";
+    if (deviceCode) {
+      $("deviceHint").hidden = false;
+      $("deviceHint").textContent =
+        "Клиент ждёт подтверждение. После " +
+        (reg ? "регистрации" : "входа") +
+        " Minecraft войдёт сам.";
+    }
+  }
+
+  async function completeDevice(session) {
+    if (!deviceCode) return;
+    try {
+      await post("/auth/device/complete", {
+        device_code: deviceCode,
+        login: session.login,
+        token: session.token,
+      });
+      status($("loginStatus"), "Готово — вернись в Minecraft", true);
+    } catch (err) {
+      status($("loginStatus"), err.message || "device complete failed", false);
+    }
+  }
+
+  function setHwidUi(hwid) {
+    const el = $("hwidValue");
+    if (!el) return;
+    const v = (hwid || "").trim();
+    if (v) {
+      el.textContent = v;
+      el.classList.remove("empty");
+    } else {
+      el.textContent = "не привязан";
+      el.classList.add("empty");
+    }
+  }
+
+  async function refreshMe(session) {
+    try {
+      const data = await post("/auth/me", { login: session.login, token: session.token });
+      session.displayName = data.displayName || session.displayName;
+      session.avatarUrl = data.avatarUrl || session.avatarUrl;
+      session.role = data.role || session.role;
+      session.uid = data.uid || session.uid;
+      session.hwid = data.hwid || "";
+      saveSession(session);
+      setHwidUi(session.hwid);
+      return session;
+    } catch {
+      setHwidUi(session.hwid || "");
+      return session;
+    }
+  }
+
+  function showHome(session) {
+    gate.classList.add("hidden");
+    home.classList.remove("hidden");
+    home.classList.remove("enter");
+    void home.offsetWidth;
+    home.classList.add("enter");
+    $("displayName").textContent = session.displayName || session.login;
+    $("metaLine").textContent = `ID ${session.uid || "—"} · ${session.role || "Player"}`;
+    $("profDisplay").value = session.displayName || session.login || "";
+    setHwidUi(session.hwid || "");
+    const img = $("avatar");
+    if (session.avatarUrl) {
+      img.src = session.avatarUrl + (session.avatarUrl.includes("?") ? "&" : "?") + "t=" + Date.now();
+      img.style.display = "block";
+      img.onerror = () => {
+        img.style.display = "none";
+      };
+    } else {
+      img.removeAttribute("src");
+      img.style.display = "none";
+    }
+    const isDev = String(session.role || "").toUpperCase() === "DEVELOPER";
+    $("adminPanel").classList.toggle("hidden", !isDev);
+    if (isDev) loadAccounts(session);
+    refreshCloud();
+    refreshMe(session).then((s) => {
+      $("displayName").textContent = s.displayName || s.login;
+      $("metaLine").textContent = `ID ${s.uid || "—"} · ${s.role || "Player"}`;
+      const isDev2 = String(s.role || "").toUpperCase() === "DEVELOPER";
+      $("adminPanel").classList.toggle("hidden", !isDev2);
+    });
+  }
+
+  function showGate() {
+    home.classList.add("hidden");
+    gate.classList.remove("hidden");
+  }
+
+  async function refreshCloud() {
+    try {
+      if (!CLOUD) return;
+      const presence = await getJson(CLOUD + "/presence.json");
+      $("onlineCount").textContent = String(presence.count || (presence.online || []).length || 0);
+      const news = await getJson(CLOUD + "/news.json");
+      const items = news.items || [];
+      $("newsCount").textContent = String(items.length);
+      const list = $("newsList");
+      list.innerHTML = "";
+      items.slice(0, 8).forEach((it) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${escapeHtml(it.title || "News")}</strong><span>${escapeHtml(it.body || "")}</span>`;
+        list.appendChild(li);
+      });
+    } catch {
+      /* optional */
+    }
+  }
+
+  async function loadAccounts(session) {
+    try {
+      const q = new URLSearchParams({ login: session.login, token: session.token });
+      const data = await getJson(API + "/auth/admin/accounts?" + q.toString());
+      const list = $("accountsList");
+      list.innerHTML = "";
+      (data.accounts || []).forEach((a) => {
+        const li = document.createElement("li");
+        li.textContent = `${a.login} · ${a.role} · ID ${a.uid || "—"}`;
+        list.appendChild(li);
+      });
+    } catch (err) {
+      status($("adminStatus"), err.message || "accounts error", false);
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  $("switchMode").addEventListener("click", () => {
+    mode = mode === "register" ? "login" : "register";
+    applyMode();
+  });
+
+  $("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const login = $("loginUser").value.trim();
+    const password = $("loginPass").value;
+    const reg = mode === "register";
+    status($("loginStatus"), reg ? "Регистрация…" : "Вход…");
+    try {
+      const path = reg ? "/auth/register" : "/auth/login";
+      const data = await post(path, { login, password, hwid: "" });
+      const session = {
+        login,
+        token: data.token,
+        displayName: data.displayName || login,
+        avatarUrl: data.avatarUrl || "",
+        role: data.role || "Player",
+        uid: data.uid || 0,
+        hwid: data.hwid || "",
+      };
+      saveSession(session);
+      await completeDevice(session);
+      status($("loginStatus"), reg ? "Аккаунт создан" : "Ок", true);
+      showHome(session);
+    } catch (err) {
+      status($("loginStatus"), err.message || "Ошибка", false);
+    }
+  });
+
+  $("profileForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const session = loadSession();
+    if (!session) return;
+    status($("profStatus"), "Сохранение…");
+    try {
+      const displayName = $("profDisplay").value.trim();
+      const fileInput = $("profAvatarFile");
+      const file = fileInput && fileInput.files && fileInput.files[0];
+      if (file) {
+        const fd = new FormData();
+        fd.append("login", session.login);
+        fd.append("token", session.token);
+        fd.append("file", file);
+        const res = await fetch(API + "/auth/avatar/upload", { method: "POST", body: fd });
+        let json = {};
+        try {
+          json = await res.json();
+        } catch {
+          /* empty */
+        }
+        if (!res.ok) {
+          throw new Error(json.detail || json.message || ("HTTP " + res.status));
+        }
+        session.avatarUrl = json.avatarUrl || session.avatarUrl;
+        session.role = json.role || session.role;
+      }
+      const data = await post("/auth/profile", {
+        login: session.login,
+        token: session.token,
+        displayName,
+        avatarUrl: session.avatarUrl || "",
+      });
+      session.displayName = data.displayName || displayName || session.displayName;
+      session.avatarUrl = data.avatarUrl || session.avatarUrl || "";
+      session.role = data.role || session.role;
+      session.uid = data.uid || session.uid;
+      saveSession(session);
+      if (fileInput) fileInput.value = "";
+      const nameEl = $("profAvatarName");
+      if (nameEl) nameEl.textContent = "Выберите файл";
+      const pick = $("profAvatarPick");
+      if (pick) pick.classList.remove("has-file");
+      status($("profStatus"), "Сохранено — в клиенте обновится через пару секунд", true);
+      showHome(session);
+    } catch (err) {
+      status($("profStatus"), err.message || "Ошибка", false);
+    }
+  });
+
+  $("adminSetRole").addEventListener("click", async () => {
+    const session = loadSession();
+    if (!session) return;
+    const target = $("adminLoginTarget").value.trim();
+    const role = $("adminRole").value;
+    if (!target) {
+      status($("adminStatus"), "Укажи логин", false);
+      return;
+    }
+    status($("adminStatus"), "…");
+    try {
+      await post("/auth/admin/setrole", {
+        adminLogin: session.login,
+        adminToken: session.token,
+        login: target,
+        role,
+      });
+      status($("adminStatus"), `Роль ${target} → ${role}`, true);
+      loadAccounts(session);
+    } catch (err) {
+      status($("adminStatus"), err.message || "Ошибка", false);
+    }
+  });
+
+  $("hwidReset").addEventListener("click", async () => {
+    const session = loadSession();
+    if (!session) return;
+    if (!confirm("Сбросить HWID? После этого можно войти с другого ПК.")) return;
+    status($("hwidStatus"), "Сброс…");
+    try {
+      const data = await post("/auth/hwid/reset", {
+        login: session.login,
+        token: session.token,
+      });
+      session.hwid = data.hwid || "";
+      saveSession(session);
+      setHwidUi(session.hwid);
+      status($("hwidStatus"), "HWID сброшен", true);
+    } catch (err) {
+      status($("hwidStatus"), err.message || "Ошибка", false);
+    }
+  });
+
+  $("logoutBtn").addEventListener("click", () => {
+    clearSession();
+    showGate();
+  });
+
+  const fileInput = $("profAvatarFile");
+  const filePick = $("profAvatarPick");
+  const fileName = $("profAvatarName");
+  if (filePick && fileInput) {
+    filePick.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", () => {
+      const f = fileInput.files && fileInput.files[0];
+      if (f) {
+        fileName.textContent = f.name;
+        filePick.classList.add("has-file");
+      } else {
+        fileName.textContent = "Выберите файл";
+        filePick.classList.remove("has-file");
+      }
+    });
+  }
+
+  applyMode();
+
+  const existing = loadSession();
+  if (existing && existing.token) {
+    showHome(existing);
+    if (deviceCode) completeDevice(existing);
+    if (CLOUD && existing.login) {
+      getJson(CLOUD + "/profiles.json")
+        .then((root) => {
+          const profiles = root.profiles || root;
+          const p = profiles[existing.login.toLowerCase()];
+          if (!p) return;
+          existing.displayName = p.displayName || existing.displayName;
+          existing.avatarUrl = p.avatarUrl || existing.avatarUrl;
+          existing.role = p.role || existing.role;
+          existing.uid = p.uid || existing.uid;
+          saveSession(existing);
+          showHome(existing);
+        })
+        .catch(() => {});
+    }
+  }
+})();
