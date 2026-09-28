@@ -74,10 +74,10 @@
     "test": {
       "login": "Test",
       "displayName": "Test",
-      "avatarUrl": "http://127.0.0.1:8787/avatars/test.jpg?t=1790569388",
+      "avatarUrl": "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud/avatars/test.jpg?t=1790569651",
       "role": "Player",
       "uid": 812545
     }
   },
-  "updatedAt": 1790569489
+  "updatedAt": 1790569653
 }
