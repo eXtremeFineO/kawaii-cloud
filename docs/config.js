@@ -1,6 +1,6 @@
 /* GitHub Pages: API_BASE must be public HTTPS (not 127.0.0.1). */
 window.KAWAII_CONFIG = {
-  API_BASE: "https://b593cc3a312713.lhr.life",
+  API_BASE: "https://d6344f7f9205ac.lhr.life",
   CLOUD_URL: "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud",
   VERSION: "0.3.33"
 };
