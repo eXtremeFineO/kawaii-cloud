@@ -4,7 +4,7 @@
     "skytao": {
       "login": "skytao",
       "displayName": "Skytao",
-      "avatarUrl": "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud/avatars/skytao.jpg?t=1790510721",
+      "avatarUrl": "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud/avatars/skytao.jpg?t=1790569486",
       "role": "DEVELOPER",
       "uid": 940553
     },
@@ -39,7 +39,7 @@
     "skytao1": {
       "login": "skytao1",
       "displayName": "skytao1",
-      "avatarUrl": "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud/avatars/skytao1.jpg?t=1790513826",
+      "avatarUrl": "http://127.0.0.1:8787/avatars/skytao1.jpg?t=1790569388",
       "role": "Player",
       "uid": 223909
     },
@@ -53,10 +53,31 @@
     "marshal_rf": {
       "login": "Marshal_RF",
       "displayName": "Marshal_RF",
-      "avatarUrl": "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud/avatars/marshal_rf.jpg?t=1790520693",
-      "role": "Player",
+      "avatarUrl": "http://127.0.0.1:8787/avatars/marshal_rf.jpg?t=1790569388",
+      "role": "Tester",
       "uid": 708037
+    },
+    "skytao56": {
+      "login": "skytao56",
+      "displayName": "skytao56",
+      "avatarUrl": "",
+      "role": "Player",
+      "uid": 470475
+    },
+    "shadowyy": {
+      "login": "shadowyy",
+      "displayName": "shadowyy",
+      "avatarUrl": "http://127.0.0.1:8787/avatars/shadowyy.jpg?t=1790569388",
+      "role": "Player",
+      "uid": 708097
+    },
+    "test": {
+      "login": "Test",
+      "displayName": "Test",
+      "avatarUrl": "http://127.0.0.1:8787/avatars/test.jpg?t=1790569388",
+      "role": "Player",
+      "uid": 812545
     }
   },
-  "updatedAt": 1790520875
+  "updatedAt": 1790569489
 }
