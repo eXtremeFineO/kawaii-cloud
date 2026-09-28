@@ -81,10 +81,10 @@
     "pozitiff": {
       "login": "Pozitiff",
       "displayName": "Pozitiff",
-      "avatarUrl": "",
+      "avatarUrl": "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud/avatars/pozitiff.jpg?t=1790580371",
       "role": "Player",
       "uid": 502141
     }
   },
-  "updatedAt": 1790580347
+  "updatedAt": 1790580375
 }
