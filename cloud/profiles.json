@@ -22,13 +22,6 @@
       "role": "Tester",
       "uid": 708037
     },
-    "skytao56": {
-      "login": "skytao56",
-      "displayName": "skytao56",
-      "avatarUrl": "",
-      "role": "Player",
-      "uid": 470475
-    },
     "shadowyy": {
       "login": "shadowyy",
       "displayName": "shadowyy",
@@ -58,5 +51,5 @@
       "uid": 264040
     }
   },
-  "updatedAt": 1790667476
+  "updatedAt": 1790667483
 }
