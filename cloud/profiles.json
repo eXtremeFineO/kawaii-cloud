@@ -29,13 +29,6 @@
       "role": "Player",
       "uid": 147770
     },
-    "123": {
-      "login": "123",
-      "displayName": "123",
-      "avatarUrl": "",
-      "role": "Player",
-      "uid": 879065
-    },
     "skytao1": {
       "login": "skytao1",
       "displayName": "skytao1",
@@ -86,5 +79,5 @@
       "uid": 264040
     }
   },
-  "updatedAt": 1790667434
+  "updatedAt": 1790667442
 }
