@@ -8,13 +8,6 @@
       "role": "DEVELOPER",
       "uid": 940553
     },
-    "user46083": {
-      "login": "user46083",
-      "displayName": "user46083",
-      "avatarUrl": "",
-      "role": "Player",
-      "uid": 773807
-    },
     "marshal_rf": {
       "login": "Marshal_RF",
       "displayName": "Marshal_RF",
@@ -44,5 +37,5 @@
       "uid": 264040
     }
   },
-  "updatedAt": 1790667495
+  "updatedAt": 1790667502
 }
