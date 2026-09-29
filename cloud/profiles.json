@@ -15,13 +15,6 @@
       "role": "Player",
       "uid": 773807
     },
-    "hwidtest7700": {
-      "login": "hwidtest7700",
-      "displayName": "hwidtest7700",
-      "avatarUrl": "",
-      "role": "Player",
-      "uid": 889190
-    },
     "sky": {
       "login": "sky",
       "displayName": "sky",
@@ -79,5 +72,5 @@
       "uid": 264040
     }
   },
-  "updatedAt": 1790667442
+  "updatedAt": 1790667459
 }
