@@ -15,13 +15,6 @@
       "role": "Player",
       "uid": 773807
     },
-    "sky": {
-      "login": "sky",
-      "displayName": "sky",
-      "avatarUrl": "",
-      "role": "Player",
-      "uid": 147770
-    },
     "skytao1": {
       "login": "skytao1",
       "displayName": "skytao1",
@@ -72,5 +65,5 @@
       "uid": 264040
     }
   },
-  "updatedAt": 1790667459
+  "updatedAt": 1790667470
 }
