@@ -15,13 +15,6 @@
       "role": "Player",
       "uid": 773807
     },
-    "skytao1": {
-      "login": "skytao1",
-      "displayName": "skytao1",
-      "avatarUrl": "http://127.0.0.1:8787/avatars/skytao1.jpg?t=1790569388",
-      "role": "Player",
-      "uid": 223909
-    },
     "marshal_rf": {
       "login": "Marshal_RF",
       "displayName": "Marshal_RF",
@@ -65,5 +58,5 @@
       "uid": 264040
     }
   },
-  "updatedAt": 1790667470
+  "updatedAt": 1790667476
 }
