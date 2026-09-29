@@ -22,13 +22,6 @@
       "role": "Player",
       "uid": 708097
     },
-    "pozitiff": {
-      "login": "Pozitiff",
-      "displayName": "Pozitiff",
-      "avatarUrl": "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud/avatars/pozitiff.jpg?t=1790580371",
-      "role": "Player",
-      "uid": 502141
-    },
     "sa1emff": {
       "login": "Sa1emff",
       "displayName": "Sa1emff",
@@ -37,5 +30,5 @@
       "uid": 264040
     }
   },
-  "updatedAt": 1790667502
+  "updatedAt": 1790667558
 }
