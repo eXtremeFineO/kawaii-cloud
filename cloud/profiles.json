@@ -28,7 +28,14 @@
       "avatarUrl": "https://raw.githubusercontent.com/eXtremeFineO/kawaii-cloud/main/cloud/avatars/sa1emff.jpg?t=1790618508",
       "role": "Player",
       "uid": 264040
+    },
+    "pozitiff": {
+      "login": "Pozitiff",
+      "displayName": "Pozitiff",
+      "avatarUrl": "",
+      "role": "Player",
+      "uid": 502141
     }
   },
-  "updatedAt": 1790670078
+  "updatedAt": 1790771821
 }
